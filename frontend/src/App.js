@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Navbar from './components/navbar/Navbar';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import Home from './components/home/home';
+
+function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const location = useLocation();
+
+  const checkAuthStatus = () => {
+    setIsLoggedIn(!!localStorage.getItem('token'));
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+    
+    // Force check when navigating to home after login
+    if (location.pathname === '/' && location.state?.fromAuth) {
+      checkAuthStatus();
+    }
+  }, [location]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen flex flex-col">
+      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/register" element={<Register setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </main>
     </div>
   );
 }
 
-export default App;
+export default AppWrapper;
