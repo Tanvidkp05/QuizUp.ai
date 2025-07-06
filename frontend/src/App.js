@@ -4,6 +4,7 @@ import Navbar from './components/navbar/Navbar';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Home from './components/home/home';
+import QuizGenerator from './components/QuizGenerator';
 
 function AppWrapper() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
           <Route path="/register" element={<Register setIsLoggedIn={setIsLoggedIn} />} />
           <Route path="/" element={<Home />} />
+          <Route path="/generateQuiz" element={<QuizGenerator />} />
         </Routes>
       </main>
     </div>
