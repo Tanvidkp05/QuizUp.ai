@@ -25,7 +25,7 @@ const QuizGenerator = () => {
       const res = await axios.post('http://localhost:5000/api/quiz/generate', 
         { text: text.substring(0, 2000) },
         {
-          timeout: 30000,
+          timeout: 60000,
           headers: {
             'Content-Type': 'application/json'
           }
