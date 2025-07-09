@@ -9,6 +9,48 @@ const QuizGenerator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [pdfFile, setPdfFile] = useState(null);
+
+const handlePdfChange = (e) => {
+  setPdfFile(e.target.files[0]);
+};
+
+const generateQuizFromPDF = async () => {
+  if (!pdfFile) {
+    setError("Please upload a PDF file");
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+  setResults(null);
+  setQuestions([]);
+  setAnswers({});
+  setCurrentQuestionIndex(0);
+
+  const formData = new FormData();
+  formData.append("pdf", pdfFile);
+
+  try {
+    const res = await axios.post("http://localhost:5000/api/quiz/extract", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 30000,
+    });
+
+    if (!res.data?.questions?.length) {
+      throw new Error("No questions generated from PDF.");
+    }
+
+    setQuestions(res.data.questions);
+  } catch (err) {
+    console.error("PDF Quiz Error:", err);
+    setError(err.response?.data?.error || "Failed to generate quiz from PDF.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const generateQuiz = async () => {
     if (!text.trim() || text.length < 20) {
@@ -140,6 +182,27 @@ const QuizGenerator = () => {
                 placeholder="Example: Photosynthesis is the process by which plants convert sunlight into energy..."
               />
             </div>
+            {/* PDF Upload Section */}
+<div className="mb-6">
+  <label className="block text-gray-700 text-sm font-medium mb-2">
+    Or upload a PDF file
+  </label>
+  <input
+    type="file"
+    accept="application/pdf"
+    onChange={handlePdfChange}
+    className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+  />
+</div>
+
+<button
+  onClick={generateQuizFromPDF}
+  disabled={isLoading}
+  className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${themeColors.secondary} transition-all duration-300 mb-4 ${isLoading ? 'opacity-75' : ''}`}
+>
+  {isLoading ? "Processing PDF..." : "Generate Quiz from PDF"}
+</button>
+
             
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
