@@ -5,6 +5,8 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Home from './components/home/home';
 import QuizGenerator from './components/QuizGenerator';
+import MultiplayerQuiz from './components/MultiplayerQuiz';
+import gameModes from './components/gameModes2';
 
 function AppWrapper() {
   return (
@@ -40,6 +42,8 @@ function App() {
           <Route path="/register" element={<Register setIsLoggedIn={setIsLoggedIn} />} />
           <Route path="/" element={<Home />} />
           <Route path="/generateQuiz" element={<QuizGenerator />} />
+          <Route path="/multiplayer" element={<MultiplayerQuiz />} />
+          <Route path="/game-modes" element={<gameModes />} />
         </Routes>
       </main>
     </div>
