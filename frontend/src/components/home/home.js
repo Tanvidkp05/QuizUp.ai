@@ -195,21 +195,21 @@ const Home = () => {
                   <div className="w-14 h-14 rounded-xl bg-[#e39dae]/20 flex items-center justify-center text-2xl">
                     🔥
                   </div>
-                  <h3 className="text-2xl font-bold text-[#132780]">Deathmatch</h3>
+                  <h3 className="text-2xl font-bold text-[#132780]">QuizUP Challange</h3>
                 </div>
                 <p className="text-gray-600 mb-6">
-                  Compete against friends and survive with your 5 lives. Each wrong answer costs one!
+                  Test your knowledge by uploading pdf and answering our geerated quizzes
                 </p>
                 <div className="flex flex-wrap gap-3 mb-6">
                   <span className="px-4 py-2 bg-[#e39dae]/10 text-[#e5496f] rounded-full text-sm font-medium">Medium Difficulty</span>
-                  <span className="px-4 py-2 bg-[#6a85c4]/10 text-[#132780] rounded-full text-sm font-medium">2-4 Players</span>
+                  <span className="px-4 py-2 bg-[#6a85c4]/10 text-[#132780] rounded-full text-sm font-medium">1 Player</span>
                   <span className="px-4 py-2 bg-[#8cb3e9]/10 text-[#132780] rounded-full text-sm font-medium">Fast-paced</span>
                 </div>
                 <Link 
-                  to="/deathmatch" 
+                  to="/generateQuiz" 
                   className="inline-block px-6 py-3 bg-[#e5496f] text-white rounded-lg font-medium hover:bg-[#d43a60] transition"
                 >
-                  Try Deathmatch
+                  Try it
                 </Link>
               </div>
             </div>
