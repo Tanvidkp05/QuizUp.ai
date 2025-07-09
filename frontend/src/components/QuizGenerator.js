@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 
 const QuizGenerator = () => {
@@ -9,11 +9,72 @@ const QuizGenerator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [inputMode, setInputMode] = useState('text'); // 'text' or 'pdf'
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfText, setPdfText] = useState('');
+  const [isExtracting, setIsExtracting] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      setPdfFile(file);
+      setError(null);
+    } else {
+      setError('Please upload a valid PDF file');
+      setPdfFile(null);
+    }
+  };
+
+  const extractTextFromPdf = async () => {
+    if (!pdfFile) {
+      setError('Please select a PDF file first');
+      return;
+    }
+
+    setIsExtracting(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('pdf', pdfFile);
+
+      const res = await axios.post('http://localhost:5000/api/pdf/extract', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setPdfText(res.data.text);
+      setText(res.data.text.substring(0, 1000) + "..."); // Show preview
+    } catch (err) {
+      console.error("PDF extraction error:", err);
+      setError(
+        err.response?.data?.error || 
+        err.response?.data?.message || 
+        err.message || 
+        "Failed to extract text from PDF. Please try again."
+      );
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   const generateQuiz = async () => {
-    if (!text.trim() || text.length < 20) {
-      setError("Please enter at least 20 characters");
-      return;
+    let sourceText = '';
+    
+    if (inputMode === 'text') {
+      if (!text.trim() || text.length < 20) {
+        setError("Please enter at least 20 characters");
+        return;
+      }
+      sourceText = text;
+    } else { // PDF mode
+      if (!pdfText) {
+        setError("Please extract text from PDF first");
+        return;
+      }
+      sourceText = pdfText;
     }
 
     setIsLoading(true);
@@ -23,9 +84,9 @@ const QuizGenerator = () => {
 
     try {
       const res = await axios.post('http://localhost:5000/api/quiz/generate', 
-        { text: text.substring(0, 2000) },
+        { text: sourceText.substring(0, 2000) },
         {
-          timeout: 60000,
+          timeout: 30000,
           headers: {
             'Content-Type': 'application/json'
           }
@@ -123,23 +184,98 @@ const QuizGenerator = () => {
           </p>
         </div>
 
+        {/* Input Mode Selector */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex rounded-md shadow-sm">
+            <button
+              onClick={() => setInputMode('text')}
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg ${
+                inputMode === 'text'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Text Input
+            </button>
+            <button
+              onClick={() => setInputMode('pdf')}
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg ${
+                inputMode === 'pdf'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              PDF Upload
+            </button>
+          </div>
+        </div>
+
         {/* Input Area */}
         {!questions.length && (
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8 transition-all duration-300 hover:shadow-xl">
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Paste your study material (minimum 20 characters)
-              </label>
-              <textarea
-                value={text}
-                onChange={(e) => {
-                  setText(e.target.value);
-                  setError(null);
-                }}
-                className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Example: Photosynthesis is the process by which plants convert sunlight into energy..."
-              />
-            </div>
+            {inputMode === 'text' ? (
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                  Paste your study material (minimum 20 characters)
+                </label>
+                <textarea
+                  value={text}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    setError(null);
+                  }}
+                  className="w-full h-40 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Example: Photosynthesis is the process by which plants convert sunlight into energy..."
+                />
+              </div>
+            ) : (
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                  Upload PDF file
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".pdf"
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    className="mr-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg"
+                  >
+                    Choose PDF
+                  </button>
+                  {pdfFile && (
+                    <span className="text-sm text-gray-600">
+                      {pdfFile.name} ({Math.round(pdfFile.size / 1024)} KB)
+                    </span>
+                  )}
+                </div>
+                
+                {pdfFile && (
+                  <button
+                    onClick={extractTextFromPdf}
+                    disabled={isExtracting}
+                    className={`mt-4 w-full py-2 px-4 rounded-lg text-white font-medium ${
+                      isExtracting ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
+                    }`}
+                  >
+                    {isExtracting ? 'Extracting Text...' : 'Extract Text from PDF'}
+                  </button>
+                )}
+                
+                {pdfText && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">Extracted Text Preview:</p>
+                    <div className="text-sm text-gray-700 max-h-40 overflow-y-auto">
+                      {text}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
@@ -149,8 +285,10 @@ const QuizGenerator = () => {
 
             <button
               onClick={generateQuiz}
-              disabled={isLoading}
-              className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${themeColors.primary} transition-all duration-300 ${isLoading ? 'opacity-75' : ''}`}
+              disabled={isLoading || (inputMode === 'pdf' && !pdfText)}
+              className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${
+                isLoading || (inputMode === 'pdf' && !pdfText) ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
+              } transition-all duration-300`}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
