@@ -10,7 +10,7 @@ app = Flask(__name__)
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Use the most reliable model for this task
-model = genai.GenerativeModel('gemini-1.5-flash')  # The correct stable model name
+model = genai.GenerativeModel('gemini-2.0-flash')  # The correct stable model name
 
 def generate_quiz(content):
     try:
