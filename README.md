@@ -27,7 +27,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/QuizUp.ai.git
+   git clone https://github.com/Tanvidkp05/QuizUp.ai
    cd QuizUp.ai
 
 2. **Install Dependencies**
