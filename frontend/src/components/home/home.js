@@ -190,11 +190,7 @@ const Home = () => {
                   </div>
                   <h3 className="text-2xl font-bold text-[#132780]">QuizUP Challange</h3>
                 </div>
-<<<<<<< HEAD
-                <p className="text-gray-600 mb-6">
-=======
                 <p className="text-gray-700 mb-6">
->>>>>>> version2
                   Test your knowledge by uploading pdf and answering our geerated quizzes
                 </p>
                 <div className="flex flex-wrap gap-3 mb-6">
