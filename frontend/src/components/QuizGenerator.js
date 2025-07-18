@@ -330,6 +330,7 @@ const QuizGenerator = () => {
 
         {/* Results Display */}
         {results && (
+<<<<<<< HEAD
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
               <div className="text-center mb-8">
@@ -381,8 +382,65 @@ const QuizGenerator = () => {
                 </button>
               </div>
             </div>
+=======
+  <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-[#132780] mb-2">Quiz Results</h2>
+        <div className={`inline-block rounded-full px-6 py-2 ${
+          results.percentage >= 70 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}>
+          Score: {results.score}/{results.total} ({results.percentage}%)
+        </div>
+        <p className={`text-xl font-semibold mt-4 ${
+          results.percentage >= 70 ? 'text-green-600' : 'text-red-600'
+        }`}>
+          {results.percentage >= 70 ? '🎉 Congratulations! You passed!' : 'Keep practicing! You got this!'}
+        </p>
+      </div>
+
+      <div className="space-y-4 mb-8">
+        {results.correctAnswers.map((item, index) => (
+          <div 
+            key={index} 
+            className={`p-4 rounded-lg ${
+              item.userAnswer === item.correctOption 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-blue-50 border border-red-200'
+            }`}
+          >
+            <h3 className="font-medium text-gray-800 mb-2">{item.question}</h3>
+            <p className={`text-sm mb-1 ${
+              item.userAnswer === item.correctOption ? 'text-green-700' : 'text-red-700'
+            }`}>
+              <span className="font-medium">Your answer:</span> {item.userAnswer || 'Not answered'}
+            </p>
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">Correct answer:</span> {item.correctOption}
+            </p>
+            {item.explanation && (
+              <div className={`mt-2 p-2 rounded text-sm ${
+                item.userAnswer === item.correctOption ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                💡 {item.explanation}
+              </div>
+            )}
+>>>>>>> version2
           </div>
-        )}
+        ))}
+      </div>
+
+      <div className="flex justify-center">
+        <button
+          onClick={resetQuiz}
+          className="py-2 px-6 rounded-lg font-medium text-white bg-[#6a85c4] hover:bg-[#5a75b4] transition-colors"
+        >
+          Create New Quiz
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
